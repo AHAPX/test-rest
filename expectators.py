@@ -1,4 +1,4 @@
-from comparators import BaseComparator, DictComp, ListComp
+from comparators import BaseComparator, DictComparator, ListComparator
 
 
 class BaseExpectator(object):
@@ -10,14 +10,13 @@ class BaseExpectator(object):
         return self.comparator.compare(data, expect)
 
 
-class DictExp(BaseExpectator):
+class DictExpectator(BaseExpectator):
 
-    def __init__(self, only_keys=False, level=None):
-        super(DictExp, self).__init__(DictComp(only_keys, level))
+    def __init__(self, only_keys=False, level=4):
+        super(DictExpectator, self).__init__(DictComparator(only_keys, level))
 
 
-class ListExp(BaseExpectator):
+class ListExpectator(BaseExpectator):
 
     def __init__(self, any_order=False):
-        super(ListExp, self).__init__(ListComp(any_order))
-
+        super(ListExpectator, self).__init__(ListComparator(any_order))

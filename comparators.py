@@ -4,7 +4,7 @@ class BaseComparator(object):
         return data == expect
 
 
-class DictComp(BaseComparator):
+class DictComparator(BaseComparator):
 
     def __init__(self, only_keys=False, level=None):
         self.only_keys = only_keys
@@ -20,10 +20,9 @@ class DictComp(BaseComparator):
                     value = data.get(key)
                     if not isinstance(value, dict):
                         return False
-                    if not self.__compare_keys(value, exp, level-1 if level else None):
+                    if not self.__compare_keys(value, exp, level - 1 if level else None):
                         return False
         return True
-
 
     def compare(self, data, expect):
         if self.only_keys:
@@ -31,7 +30,7 @@ class DictComp(BaseComparator):
         return data == expect
 
 
-class ListComp(BaseComparator):
+class ListComparator(BaseComparator):
 
     def __init__(self, any_order=False):
         self.any_order = any_order
