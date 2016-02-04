@@ -5,7 +5,7 @@ import re
 import yaml
 
 import expectators
-from actions import Step, Action
+from actions import Step, Action, Actions
 
 
 EXPECTATORS = {
@@ -47,10 +47,13 @@ class BaseLoader(object):
 
     def load(self):
         if self.actions is None:
-            self.actions = self.get_actions(self.data.get('actions'), self.get_block(self.data))
+            self.actions = self.get_actions(self.data['actions'], self.get_block(self.data))
         return self.actions
 
-    def get_block(self, block, url='', method='get', data={}, code=200, result=None, handler=None):
+    def get_block(
+        self, block, url='', method='get', data={}, code=200, result=None,
+        handler=None, skip_errors=False
+    ):
         return {
             'url': urljoin(url, block.get('url', '')),
             'method': block.get('method', method),
@@ -58,14 +61,15 @@ class BaseLoader(object):
             'code': block.get('code', code),
             'result': block.get('result', result),
             'handler': block.get('handler', handler),
+            'skip_errors': block.get('skip_errors', skip_errors),
         }
 
     def get_actions(self, actions, params):
-        result = []
+        result = Actions()
         for action in actions:
             name, data = action.popitem()
             steps = self.get_steps(data.get('steps'), self.get_block(data, **params))
-            result.append(Action(steps, name))
+            result.add_action(Action(steps, name))
         return result
 
     def get_steps(self, steps, params):
@@ -84,6 +88,7 @@ class BaseLoader(object):
                 expected_code=step_params.get('code'),
                 expected_data=step_params.get('result'),
                 expectator=step_params.get('handler'),
+                skip_errors=step_params.get('skip_errors'),
                 name=name,
             ))
         return result
@@ -106,3 +111,14 @@ class YAMLLoader(BaseLoader):
 
     def __init__(self, filename):
         super(YAMLLoader, self).__init__(yaml.load(open(filename)))
+
+
+
+LOADERS = {
+    'yaml': YAMLLoader,
+    'yml': YAMLLoader,
+}
+
+
+def get_loader(format):
+    return LOADERS.get(format)
