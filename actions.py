@@ -6,7 +6,7 @@ import re
 import requests
 
 from comparators import BaseComparator
-from expectators import BaseExpectator
+
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
@@ -20,7 +20,7 @@ class Step(object):
 
     def __init__(
         self, url, method='get', data={}, expected_code=200, expected_data=None,
-        expectator=BaseExpectator(), skip_errors=False, name=None
+        comparator=BaseComparator(), skip_errors=False, name=None
     ):
         self._parent = None
         self._url = url
@@ -28,7 +28,7 @@ class Step(object):
         self._data = data
         self.expected_code = expected_code
         self.expected_data = expected_data
-        self.expectator = expectator
+        self.comparator = comparator
         self.skip_errors = skip_errors
         self._name = name
         self.results = {}
@@ -52,7 +52,7 @@ class Step(object):
             logger_method = logger.warning
         if self.expected_data is not None:
             self.results = json.loads(resp.content.decode())
-            if not self.expectator.compare(data=self.results, expect=self.expected_data):
+            if not self.comparator.compare(data=self.results, expect=self.expected_data):
                 if not self.skip_errors:
                     logger.error('response data "%s" is not equal "%s"', self.results, self.expected_data)
                 logger_method = logger.warning
