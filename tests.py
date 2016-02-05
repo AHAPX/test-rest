@@ -340,6 +340,14 @@ class TestActions(unittest.TestCase):
         step.expected_data = {'test': True}
         with self.assertLogs('actions', level='INFO'):
             step.run()
+        # empty content
+        resp.content = b''
+        with self.assertLogs('actions') as cm:
+            step.run()
+            self.assertEqual(cm.output, [
+                'ERROR:actions:response data "None" is not equal "{\'test\': True}"',
+                'WARNING:actions:None GET http://test.com'
+            ])
         # set wrong params and test
         resp.status_code = 404
         resp.content = b'{"test": false}'
@@ -364,27 +372,7 @@ class TestActions(unittest.TestCase):
         resp = ResponseX()
         post.return_value = resp
         step = Step(url='http://test.com', method='post')
-        # check only status code
         with self.assertLogs('actions', level='INFO'):
-            step.run()
-        # set expected_data and test
-        resp.content = b'{"test": true}'
-        step.expected_data = {'test': True}
-        with self.assertLogs('actions', level='INFO'):
-            step.run()
-        # set wrong params and test
-        resp.status_code = 404
-        resp.content = b'{"test": false}'
-        with self.assertLogs('actions') as cm:
-            step.run()
-            self.assertEqual(cm.output, [
-                'ERROR:actions:status code 404 not equal 200',
-                'ERROR:actions:response data "{\'test\': False}" is not equal "{\'test\': True}"',
-                'WARNING:actions:None POST http://test.com'
-            ])
-        # skip errors
-        step.skip_erros = True
-        with self.assertLogs('actions', level='WARNING'):
             step.run()
 
     @patch('actions.Step.run')

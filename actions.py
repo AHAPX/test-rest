@@ -1,19 +1,21 @@
 import json
-import logging
-import logging.handlers
+from logging import StreamHandler
 import re
 
 import requests
+import colorlog
 
 from comparators import BaseComparator
 
 
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler()
-handler.setLevel(logging.INFO)
-handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger = colorlog.logging.getLogger(__name__)
+handler = StreamHandler()
+handler.setLevel('INFO')
+handler.setFormatter(colorlog.ColoredFormatter(
+    '%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+))
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+logger.setLevel('INFO')
 
 
 class Step(object):
@@ -51,7 +53,10 @@ class Step(object):
                 logger.error('status code %d not equal %d', resp.status_code, self.expected_code)
             logger_method = logger.warning
         if self.expected_data is not None:
-            self.results = json.loads(resp.content.decode())
+            try:
+                self.results = json.loads(resp.content.decode())
+            except ValueError:
+                self.results = None
             if not self.comparator.compare(data=self.results, expect=self.expected_data):
                 if not self.skip_errors:
                     logger.error('response data "%s" is not equal "%s"', self.results, self.expected_data)
