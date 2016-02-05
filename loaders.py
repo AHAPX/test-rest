@@ -60,7 +60,7 @@ class BaseLoader(object):
 
     def get_block(
         self, block, url='', method='get', data={}, code=200, result=None,
-        handler=None, skip_errors=False
+        handler='base', skip_errors=False
     ):
         return {
             'url': urljoin(url, block.get('url', '')),
@@ -110,8 +110,9 @@ class BaseLoader(object):
 class YAMLLoader(BaseLoader):
 
     def __init__(self, filename):
-        super(YAMLLoader, self).__init__(yaml.load(open(filename)))
-
+        fn = open(filename)
+        super(YAMLLoader, self).__init__(yaml.load(fn))
+        fn.close()
 
 
 LOADERS = {

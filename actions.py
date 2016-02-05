@@ -78,9 +78,10 @@ class Step(object):
     def data(self):
         data = {}
         for key, value in self._data.items():
-            variable = re.compile('%(?P<variable>[\w\.]+)%').match(value)
-            if variable:
-                value = self.get_variable(variable.group('variable'))
+            if isinstance(value, str):
+                variable = re.compile('%(?P<variable>[\w\.]+)%').match(value)
+                if variable:
+                    value = self.get_variable(variable.group('variable'))
             data[key] = value
         return data
 
@@ -135,7 +136,7 @@ class Actions(object):
 
     def __init__(self, actions=[]):
         self.actions = []
-        for action in self.actions:
+        for action in actions:
             self.add_action(action)
 
     def __str__(self):

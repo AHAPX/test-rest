@@ -1,0 +1,10 @@
+url: http://test.com/
+method: post
+code: 200
+handler: dict
+actions:
+    - main:
+        steps:
+            -
+                url: /
+                result: {rc: True}
