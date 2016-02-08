@@ -26,7 +26,7 @@ class Step(object):
     ):
         self._parent = None
         self._url = url
-        self.method = method
+        self.method = method.lower()
         self._data = data
         self.expected_code = expected_code
         self.expected_data = expected_data
